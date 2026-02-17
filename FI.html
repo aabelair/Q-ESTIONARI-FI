@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qüestionari de Català - Nivell A2 (80 Preguntes)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --error: #c0392b;
+            --bg: #f4f6f7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .quiz-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        h1 { margin-bottom: 20px; font-size: 1.5rem; }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .question-box {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 500px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .question-box { font-size: 1.1rem; }
+        }
+
+        button.option-btn {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        button.option-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            background: #ebf5fb;
+        }
+
+        button.option-btn.correct {
+            background-color: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        button.option-btn.incorrect {
+            background-color: var(--error);
+            color: white;
+            border-color: var(--error);
+        }
+
+        #next-btn {
+            margin-top: 25px;
+            padding: 12px 30px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            font-weight: bold;
+        }
+
+        #next-btn:hover { background-color: #2980b9; }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .result-screen { display: none; }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin: 0 auto 20px auto;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div id="quiz-screen">
+        <div class="stats">
+            <span id="question-count">Pregunta 1 de 80</span>
+            <span id="score-display">Punts: 0</span>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div class="question-box" id="question-text">
+            Carregant...
+        </div>
+
+        <div class="options-grid" id="options-container">
+            </div>
+
+        <button id="next-btn" onclick="nextQuestion()">Següent Pregunta</button>
+    </div>
+
+    <div id="result-screen" class="result-screen">
+        <h2>Test completat!</h2>
+        <div class="score-circle" id="final-score"></div>
+        <p id="feedback-msg" style="font-size: 1.2rem; margin-bottom: 30px;"></p>
+        <button onclick="location.reload()" style="padding: 12px 25px; background: var(--primary); color: white; border:none; border-radius:5px; cursor:pointer; font-size: 1rem;">Tornar a començar</button>
+    </div>
+</div>
+
+<script>
+    // BANC DE 80 PREGUNTES
+    const questions = [
+        // --- BLOC 1: VERBS (Present, Passat, Futur - 1a Conjugació) ---
+        { q: "Ahir jo ______ una poma per berenar.", options: ["menjo", "vaig menjar", "menjaré", "menjaria"], a: 1 },
+        { q: "Demà nosaltres ______ una cançó a la classe.", options: ["cantem", "vam cantar", "cantarem", "cantar"], a: 2 },
+        { q: "Ell sempre ______ molt bé català.", options: ["parla", "parlar", "parles", "parlen"], a: 0 },
+        { q: "Tu ______ molt cansat avui, oi?", options: ["estem", "estàs", "estaven", "estaré"], a: 1 },
+        { q: "La setmana passada vosaltres ______ a la discoteca.", options: ["balleu", "ballareu", "vau ballar", "ballen"], a: 2 },
+        { q: "Jo ______ cada dia a les 8 del matí.", options: ["s'aixeca", "m'aixeco", "ens aixequem", "aixecar-se"], a: 1 },
+        { q: "D'aquí a dos anys, ells ______ una casa nova.", options: ["compren", "van comprar", "compraran", "compra"], a: 2 },
+        { q: "En Pere ______ la ràdio cada matí.", options: ["escolta", "escoltes", "escolten", "escoltem"], a: 0 },
+        { q: "Ahir a la nit tu no ______ la televisió.", options: ["mires", "miraràs", "vas mirar", "mira"], a: 2 },
+        { q: "Nosaltres ______ (present) al centre de la ciutat.", options: ["treballen", "treballem", "treballes", "treballo"], a: 1 },
+        { q: "Demà la Marta ______ una festa a casa seva.", options: ["organitza", "organitzarà", "organitzes", "va organitzar"], a: 1 },
+        { q: "Nosaltres sempre ______ (sopar) a les nou.", options: ["sopo", "sopem", "sopen", "sopeu"], a: 1 },
+        { q: "Ahir els nens ______ molt al parc.", options: ["juguen", "jugaran", "van jugar", "jugar"], a: 2 },
+        { q: "Tu ______ (viatjar) a Itàlia l'any que ve?", options: ["viatjaràs", "viatges", "vas viatjar", "viatgen"], a: 0 },
+        { q: "Jo mai ______ (arribar) tard a la feina.", options: ["arribes", "arriben", "arribo", "arriba"], a: 2 },
+        { q: "Vosaltres ______ (comprar) el pa cada dia.", options: ["compreu", "comprem", "compren", "compra"], a: 0 },
+        { q: "La professora ______ (explicar) la lliçó ara.", options: ["explica", "expliques", "expliquen", "explicar"], a: 0 },
+        { q: "L'any passat jo ______ (visitar) el museu.", options: ["visito", "vaig visitar", "visitaré", "visitem"], a: 1 },
+        { q: "Ells ______ (rentar) els plats després de sopar.", options: ["renten", "rentem", "rentes", "rento"], a: 0 },
+        { q: "Si tens fred, ______ (tancar) la finestra.", options: ["tanco", "tanquem", "tanca", "tanquen"], a: 2 },
+
+        // --- BLOC 2: NOMBRES I HORES ---
+        { q: "Com s'escriu el número 16?", options: ["Setze", "Seixanta", "Sètze", "Datze"], a: 0 },
+        { q: "Quin número és 'quaranta-dos'?", options: ["24", "42", "402", "14"], a: 1 },
+        { q: "Com s'escriu el número 80?", options: ["Vuit", "Divuit", "Vuitanta", "Vint"], a: 2 },
+        { q: "Calcula: 20 + 15 = ...", options: ["Vint-i-cinc", "Trenta-cinc", "Trenta", "Quaranta"], a: 1 },
+        { q: "Com s'escriu el número 99?", options: ["Noranta-nou", "Nou-u-nou", "Nonanta-nou", "Noranta i nou"], a: 0 },
+        { q: "Quin número és el 12?", options: ["Dotze", "Deu-i-dos", "Dotza", "Dosze"], a: 0 },
+        { q: "Com s'escriu el 50?", options: ["Cinc", "Cinquanta", "Quingues", "Cinc-zero"], a: 1 },
+        { q: "El número 100 s'escriu...", options: ["Zen", "Cent", "Sen", "Cen"], a: 1 },
+        { q: "30 + 30 fan...", options: ["Trenta", "Setanta", "Seixanta", "Vuitanta"], a: 2 },
+        { q: "Quants minuts té una hora?", options: ["Seixanta", "Setanta", "Cent", "Vint-i-quatre"], a: 0 },
+        { q: "Quin número ve després del vint-i-nou?", options: ["Trenta", "Vint-i-deu", "Vint-i-vuit", "Quaranta"], a: 0 },
+        { q: "Si són les 15:00, són les...", options: ["tres de la tarda", "cinc de la tarda", "tres del matí", "una del migdia"], a: 0 },
+
+        // --- BLOC 3: ADJECTIUS I CONCORDANÇA ---
+        { q: "La casa és molt ______.", options: ["bonic", "bonica", "bonics", "boniques"], a: 1 },
+        { q: "Els cotxes són ______.", options: ["ràpid", "ràpida", "ràpids", "ràpides"], a: 2 },
+        { q: "Aquest noi és molt ______ (alt).", options: ["alt", "alta", "alts", "altes"], a: 0 },
+        { q: "Les sabates són ______ (vermell).", options: ["vermell", "vermells", "vermella", "vermelles"], a: 3 },
+        { q: "El contrari de 'gran' és...", options: ["ample", "baix", "petit", "llarg"], a: 2 },
+        { q: "Porto una samarreta ______ (blau).", options: ["blau", "blaves", "blava", "blaus"], a: 2 },
+        { q: "Els pantalons són ______ (nou).", options: ["nous", "noves", "nou", "nova"], a: 0 },
+        { q: "La faldilla és ______ (negre).", options: ["negre", "negra", "negres", "negras"], a: 1 },
+        { q: "M'agraden les sabates ______ (blanc).", options: ["blanc", "blanca", "blanques", "blancs"], a: 2 },
+        { q: "A l'hivern porto un abric ______ (gruixut).", options: ["gruixuda", "gruixuts", "gruixut", "gruixudes"], a: 2 },
+        { q: "L'examen ha estat molt ______ (fàcil).", options: ["fàcil", "fàcils", "fàcila", "fàciles"], a: 0 },
+        { q: "Les nenes són ______ (intel·ligent).", options: ["intel·ligent", "intel·ligents", "intel·ligentas", "intel·ligenta"], a: 1 },
+
+        // --- BLOC 4: ESTACIONS, DIES I TEMPS ---
+        { q: "Després del dilluns ve el...", options: ["dimecres", "dimarts", "dijous", "divendres"], a: 1 },
+        { q: "L'estació on fa més calor és...", options: ["l'hivern", "la primavera", "la tardor", "l'estiu"], a: 3 },
+        { q: "Si avui és dissabte, demà és...", options: ["divendres", "diumenge", "dilluns", "dijous"], a: 1 },
+        { q: "Al mes de gener estem a...", options: ["l'hivern", "l'estiu", "la primavera", "la tardor"], a: 0 },
+        { q: "Quants dies té una setmana?", options: ["Cinc", "Sis", "Set", "Vuit"], a: 2 },
+        { q: "A l'hivern fa molt ______.", options: ["calor", "fred", "sol", "bo"], a: 1 },
+        { q: "Quan plou necessito un...", options: ["paraigua", "banyador", "ulleres de sol", "barret"], a: 0 },
+        { q: "A la primavera hi ha moltes...", options: ["neuris", "flors", "fulles seques", "neu"], a: 1 },
+        { q: "El mes de ______ té menys dies que els altres.", options: ["gener", "agost", "febrer", "desembre"], a: 2 },
+        { q: "A l'estiu m'agrada anar a la...", options: ["muntanya", "platja", "escola", "neu"], a: 1 },
+
+        // --- BLOC 5: FAMÍLIA ---
+        { q: "El pare del meu pare és el meu...", options: ["oncle", "avi", "cosí", "germà"], a: 1 },
+        { q: "La filla de la meva tia és la meva...", options: ["germana", "cosina", "neta", "sogra"], a: 1 },
+        { q: "El marit de la meva mare és el meu...", options: ["pare", "germà", "fill", "avi"], a: 0 },
+        { q: "Jo tinc un germà. Nosaltres som...", options: ["fills", "germans", "pares", "oncles"], a: 1 },
+        { q: "La dona del meu oncle és la meva...", options: ["àvia", "cosina", "tieta", "neboda"], a: 2 },
+        { q: "La germana del meu marit és la meva...", options: ["sogra", "cunyada", "nora", "tieta"], a: 1 },
+        { q: "Els fills dels meus fills són els meus...", options: ["nebots", "nets", "avis", "cosins"], a: 1 },
+
+        // --- BLOC 6: ESTATS D'ÀNIM I COS ---
+        { q: "Avui estic molt ______ perquè he aprovat l'examen.", options: ["trist", "content", "enfadada", "avorrit"], a: 1 },
+        { q: "La Maria ______ malalta avui.", options: ["és", "té", "està", "fa"], a: 2 },
+        { q: "En Joan ______ un noi molt simpàtic.", options: ["està", "és", "té", "sembla"], a: 1 },
+        { q: "Estic ______ perquè he treballat 12 hores.", options: ["cansat", "feliç", "actiu", "jove"], a: 0 },
+        { q: "Elles ______ (estar) preocupades.", options: ["estan", "estem", "esteu", "està"], a: 0 },
+        { q: "Per veure-hi necessitem els...", options: ["orelles", "ulls", "nassos", "bocques"], a: 1 },
+        { q: "Per escoltar música faig servir les...", options: ["mans", "cames", "orelles", "dents"], a: 2 },
+
+        // --- BLOC 7: CASA I MOBLES ---
+        { q: "Dormo al meu...", options: ["lavabo", "cuina", "dormitori", "rebedor"], a: 2 },
+        { q: "Preparo el dinar a la...", options: ["cuina", "bany", "habitació", "terrassa"], a: 0 },
+        { q: "El sofà està al...", options: ["passadís", "menjador", "garatge", "sostre"], a: 1 },
+        { q: "Em rento les dents al...", options: ["balcó", "lavabo", "jardí", "rebedor"], a: 1 },
+        { q: "Guardo la roba a l'______.", options: ["armari", "taula", "cadira", "llit"], a: 0 },
+        { q: "Per pujar al pis de dalt faig servir les...", options: ["finestres", "escales", "portes", "parets"], a: 1 },
+        { q: "La catifa està a...", options: ["el sostre", "la paret", "el terra", "la finestra"], a: 2 },
+
+        // --- BLOC 8: TRANSPORTS I CIUTAT ---
+        { q: "Cada dia vaig a la feina ______ metro.", options: ["a", "en", "amb", "per"], a: 1 },
+        { q: "M'agrada anar ______ peu per la ciutat.", options: ["en", "de", "amb", "a"], a: 3 },
+        { q: "Per viatjar a Nova York necessites un...", options: ["cotxe", "avió", "tren", "bicicleta"], a: 1 },
+        { q: "El tren arriba a l'______.", options: ["aeroport", "port", "estació", "parada"], a: 2 },
+        { q: "La bicicleta té dues...", options: ["rodes", "portes", "finestres", "motors"], a: 0 },
+        { q: "El semàfor està en color ______ (stop).", options: ["verd", "groc", "vermell", "blau"], a: 2 },
+        { q: "Camino per la ______ (on van els vianants).", options: ["carretera", "vorera", "autopista", "via"], a: 1 },
+
+        // --- BLOC 9: MENJAR I BEURE ---
+        { q: "Per esmorzar prenc un cafè amb...", options: ["sal", "llet", "oli", "vinagre"], a: 1 },
+        { q: "M'agrada molt la fruita, sobretot la...", options: ["patata", "ceba", "poma", "enciam"], a: 2 },
+        { q: "A la amanida hi poso...", options: ["oli i sal", "sucre", "llet", "cafè"], a: 0 },
+        { q: "El pa es fa amb...", options: ["arròs", "farina", "carn", "peix"], a: 1 },
+        { q: "Després de dinar prenc unes...", options: ["postres", "sopes", "amanides", "esmorzars"], a: 0 },
+        { q: "L'aigua no té...", options: ["color", "líquid", "got", "ampolla"], a: 0 },
+        { q: "La carn es compra a la...", options: ["peixateria", "carnisseria", "fleca", "farmàcia"], a: 1 },
+
+        // --- BLOC 10: VOCABULARI VARIAT I ANTONIMS ---
+        { q: "El contrari de 'obrir' és...", options: ["entrar", "sortir", "tancar", "baixar"], a: 2 },
+        { q: "El contrari de 'comprar' és...", options: ["pagar", "vendre", "agafar", "mirar"], a: 1 },
+        { q: "Per escriure necessito un...", options: ["bolígraf", "got", "plat", "rellotge"], a: 0 },
+        { q: "Tinc mal de cap, vaig al...", options: ["mecànic", "metge", "arquitecte", "bomber"], a: 1 },
+        { q: "El contrari de 'pujar' és...", options: ["saltar", "baixar", "córrer", "volar"], a: 1 },
+        { q: "Si tinc gana, he de...", options: ["beure", "dormir", "menjar", "córrer"], a: 2 },
+        { q: "El contrari de 'car' és...", options: ["barat", "bo", "dolent", "nou"], a: 0 }
+    ];
+
+    // LÒGICA DEL QÜESTIONARI
+    let currentQuestionIndex = 0;
+    let score = 0;
+    
+    // Opcional: Descomenta la línia següent per barrejar les preguntes cada cop
+    // questions.sort(() => Math.random() - 0.5); 
+
+    const questionText = document.getElementById("question-text");
+    const optionsContainer = document.getElementById("options-container");
+    const nextBtn = document.getElementById("next-btn");
+    const countDisplay = document.getElementById("question-count");
+    const scoreDisplay = document.getElementById("score-display");
+    const progressFill = document.getElementById("progress-fill");
+
+    function loadQuestion() {
+        const currentQ = questions[currentQuestionIndex];
+        
+        // Actualitzar text i comptadors
+        questionText.textContent = currentQ.q;
+        countDisplay.textContent = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+        const progressPct = ((currentQuestionIndex) / questions.length) * 100;
+        progressFill.style.width = `${progressPct}%`;
+
+        // Netejar opcions anteriors
+        optionsContainer.innerHTML = "";
+        nextBtn.style.display = "none";
+
+        // Crear botons
+        currentQ.options.forEach((opt, index) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.textContent = opt;
+            btn.onclick = () => checkAnswer(index, btn);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedIndex, btn) {
+        const currentQ = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll(".option-btn");
+        
+        // Desactivar tots els botons per evitar múltiples clics
+        buttons.forEach(b => b.disabled = true);
+
+        if (selectedIndex === currentQ.a) {
+            btn.classList.add("correct");
+            score++;
+            scoreDisplay.textContent = `Punts: ${score}`;
+        } else {
+            btn.classList.add("incorrect");
+            // Mostrar quina era la correcta
+            buttons[currentQ.a].classList.add("correct");
+        }
+
+        nextBtn.style.display = "inline-block";
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById("quiz-screen").style.display = "none";
+        document.getElementById("result-screen").style.display = "block";
+        
+        const finalScoreDiv = document.getElementById("final-score");
+        finalScoreDiv.textContent = `${score}/${questions.length}`;
+        
+        const percentage = (score / questions.length) * 100;
+        const feedback = document.getElementById("feedback-msg");
+        
+        if (percentage >= 90) {
+            feedback.textContent = "Excel·lent! Tens un nivell molt bo (A2+).";
+            feedback.style.color = "var(--success)";
+        } else if (percentage >= 70) {
+            feedback.textContent = "Molt bé! Has aprovat amb nota.";
+            feedback.style.color = "var(--accent)";
+        } else if (percentage >= 50) {
+            feedback.textContent = "Bé, has aprovat, però cal repassar alguns conceptes.";
+            feedback.style.color = "#f39c12";
+        } else {
+            feedback.textContent = "Has de continuar estudiant. No et desanimis!";
+            feedback.style.color = "var(--error)";
+        }
+    }
+
+    // Iniciar el test
+    loadQuestion();
+</script>
+
+</body>
+</html>
